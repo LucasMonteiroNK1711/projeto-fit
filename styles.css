@@ -5,6 +5,10 @@
   --muted: #6f7981;
   --primary: #0f9d8b;
   --primary-soft: #bde8e2;
+<<<<<<< codex/create-responsive-gym-tracker-app-kwze6z
+  --danger: #d94a63;
+=======
+>>>>>>> main
   --radius: 18px;
 }
 
@@ -16,6 +20,14 @@ body {
   color: var(--text);
 }
 
+<<<<<<< codex/create-responsive-gym-tracker-app-kwze6z
+.app-shell { max-width: 1080px; margin: 0 auto; min-height: calc(100vh - 70px); padding: 16px 16px 100px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.brand { margin: 0; color: var(--muted); font-size: 0.8rem; text-transform: lowercase; }
+.topbar h1 { margin: 4px 0 0; font-size: 1.4rem; }
+
+.icon-btn, .btn { border: 0; border-radius: 12px; background: var(--primary); color: white; padding: 10px 14px; font-weight: 600; cursor: pointer; }
+=======
 .app-shell {
   max-width: 1080px;
   margin: 0 auto;
@@ -41,17 +53,22 @@ body {
   font-weight: 600;
   cursor: pointer;
 }
+>>>>>>> main
 .icon-btn { width: 40px; height: 40px; font-size: 1.3rem; padding: 0; }
 .btn-secondary { background: #a7b0b7; }
 
 .screen { display: none; }
 .screen.active { display: grid; gap: 12px; }
+<<<<<<< codex/create-responsive-gym-tracker-app-kwze6z
+.card { background: var(--card); border-radius: var(--radius); padding: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+=======
 .card {
   background: var(--card);
   border-radius: var(--radius);
   padding: 14px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
+>>>>>>> main
 .card h2 { margin: 0 0 10px; font-size: 1rem; }
 
 .gauge-wrap { display: grid; place-items: center; position: relative; }
@@ -66,6 +83,36 @@ body {
 .kpi span { color: var(--muted); display: block; margin-bottom: 4px; }
 .kpi strong { font-size: 1.2rem; }
 
+<<<<<<< codex/create-responsive-gym-tracker-app-kwze6z
+.week-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.week-day {
+  border: 1px solid #d7dfe3;
+  border-radius: 12px;
+  text-align: center;
+  padding: 8px 4px;
+  font-size: .8rem;
+}
+.week-day strong { display: block; font-size: .95rem; margin-top: 2px; }
+.week-day.today { border-color: var(--primary); background: var(--primary-soft); }
+.week-day.rest { opacity: .5; }
+
+.treino-highlight { border: 1px solid #dceeea; }
+
+.bottom-nav {
+  position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+  width: min(96%, 540px); display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+  background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-radius: 16px; padding: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+}
+.nav-btn { border: none; border-radius: 10px; background: transparent; padding: 11px 10px; font-weight: 700; color: #60717a; }
+.nav-btn.active { background: var(--primary-soft); color: #066a5d; }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+label { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
+input, select { border: 1px solid #d8dde0; border-radius: 10px; padding: 10px; font: inherit; }
+
+.workout-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; border-bottom: 1px solid #edf0f2; padding: 10px 0; }
+=======
 .bottom-nav {
   position: fixed;
   bottom: 10px;
@@ -111,6 +158,7 @@ input, select {
   border-bottom: 1px solid #edf0f2;
   padding: 10px 0;
 }
+>>>>>>> main
 .workout-item:last-child { border-bottom: 0; }
 .muted { color: var(--muted); }
 
@@ -118,12 +166,31 @@ input, select {
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
 th, td { padding: 9px 6px; border-bottom: 1px solid #edf0f2; text-align: left; }
 .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+<<<<<<< codex/create-responsive-gym-tracker-app-kwze6z
+.row-actions { text-align: right; }
+.trash-btn {
+  border: 1px solid #efd1d7;
+  color: var(--danger);
+  background: #fff4f6;
+  border-radius: 10px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.workout-plan-grid { display: grid; gap: 8px; margin-top: 10px; }
+.workout-day-card { border: 1px solid #e6ecef; border-radius: 12px; padding: 10px; }
+.workout-day-card summary { cursor: pointer; font-weight: 600; }
+
+
+dialog { border: none; border-radius: 16px; width: min(680px, 95%); }
+=======
 
 dialog {
   border: none;
   border-radius: 16px;
   width: min(680px, 95%);
 }
+>>>>>>> main
 dialog::backdrop { background: rgba(0,0,0,.35); }
 .modal-form { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 10px; }
 .modal-form h3 { grid-column: 1/-1; margin: 0; }

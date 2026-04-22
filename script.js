@@ -25,6 +25,14 @@ const measureForm = document.getElementById('measureForm');
 const tableBody = document.getElementById('measureTableBody');
 const workoutForm = document.getElementById('workoutForm');
 
+function saveMeasures() {
+  localStorage.setItem(STORAGE_KEYS.measures, JSON.stringify(state.measures));
+}
+
+function saveWorkouts() {
+  localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(state.workouts));
+}
+
 document.getElementById('openMeasureModal').onclick = () => modal.showModal();
 document.getElementById('openMeasureModalHeader').onclick = () => modal.showModal();
 document.getElementById('closeModal').onclick = () => modal.close();
@@ -51,7 +59,7 @@ measureForm.addEventListener('submit', (event) => {
 
   state.measures.push(entry);
   state.measures.sort((a, b) => new Date(a.date) - new Date(b.date));
-  localStorage.setItem(STORAGE_KEYS.measures, JSON.stringify(state.measures));
+  saveMeasures();
 
   measureForm.reset();
   modal.close();
@@ -70,10 +78,11 @@ workoutForm.addEventListener('submit', (event) => {
   };
 
   state.workouts[day] = [...(state.workouts[day] || []), newItem];
-  localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(state.workouts));
+  saveWorkouts();
   workoutForm.reset();
   renderWorkoutPlan();
   renderTodayWorkout();
+  renderWeekStrip();
 });
 
 function calculateAge(birthDate) {
@@ -170,14 +179,20 @@ function drawLineChart(canvasId, labels, values, color) {
   ctx.stroke();
 }
 
+function deleteMeasure(index) {
+  state.measures.splice(index, 1);
+  saveMeasures();
+  refreshAll();
+}
+
 function renderMeasures() {
   tableBody.innerHTML = '';
   if (!state.measures.length) {
-    tableBody.innerHTML = '<tr><td colspan="8">Nenhuma medida registrada ainda.</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="9">Nenhuma medida registrada ainda.</td></tr>';
     return;
   }
 
-  state.measures.forEach((m) => {
+  state.measures.forEach((m, index) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${m.date || '-'}</td>
@@ -187,8 +202,16 @@ function renderMeasures() {
       <td>${m.waist ?? '-'}</td>
       <td>${m.hip ?? '-'}</td>
       <td>${m.arm ?? '-'}</td>
-      <td>${m.leg ?? '-'}</td>`;
+      <td>${m.leg ?? '-'}</td>
+      <td class="row-actions"><button class="trash-btn" data-measure-index="${index}" title="Excluir medida">🗑</button></td>`;
     tableBody.appendChild(tr);
+  });
+
+  document.querySelectorAll('[data-measure-index]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const idx = Number(event.currentTarget.dataset.measureIndex);
+      deleteMeasure(idx);
+    });
   });
 }
 
@@ -209,13 +232,31 @@ function renderDashboard() {
   document.getElementById('bodyFatClass').textContent = fatClass(fat);
   setGauge(fat);
 
-  const labels = state.measures.map((m) => m.date?.slice(5) || '');
-  drawLineChart('weightChart', labels, state.measures.map((m) => m.weight).filter((v) => v != null), '#0f9d8b');
-  drawLineChart('fatChart', labels, state.measures.map((m) => navyBodyFat(m)).filter((v) => v != null), '#4a78d6');
+  const weightMeasures = state.measures.filter((m) => m.weight != null);
+  const fatMeasures = state.measures.map((m) => ({ date: m.date, fat: navyBodyFat(m) })).filter((m) => m.fat != null);
+
+  drawLineChart('weightChart', weightMeasures.map((m) => m.date?.slice(5) || ''), weightMeasures.map((m) => m.weight), '#0f9d8b');
+  drawLineChart('fatChart', fatMeasures.map((m) => m.date?.slice(5) || ''), fatMeasures.map((m) => m.fat), '#4a78d6');
 }
 
 function dayName(day) {
   return ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][day];
+}
+
+function renderWeekStrip() {
+  const strip = document.getElementById('weekStrip');
+  const summary = document.getElementById('weekSummary');
+  const today = new Date().getDay();
+  const activeDays = [1, 2, 3, 4, 5, 6].filter((day) => (state.workouts[day] || []).length > 0).length;
+
+  strip.innerHTML = [0, 1, 2, 3, 4, 5, 6].map((day) => {
+    const cls = [day === today ? 'today' : '', day === 0 ? 'rest' : ''].join(' ');
+    const count = (state.workouts[day] || []).length;
+    const short = dayName(day).slice(0, 3);
+    return `<div class="week-day ${cls}">${short}<strong>${day === 0 ? 'REST' : count}</strong></div>`;
+  }).join('');
+
+  summary.textContent = `${activeDays} de 6 dias com treino cadastrado nesta semana.`;
 }
 
 function renderTodayWorkout() {
@@ -250,22 +291,40 @@ function renderTodayWorkout() {
       const day = Number(e.target.dataset.day);
       const index = Number(e.target.dataset.index);
       state.workouts[day][index].load = e.target.value;
-      localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(state.workouts));
+      saveWorkouts();
     });
   });
 }
 
+function removeExercise(day, index) {
+  state.workouts[day].splice(index, 1);
+  saveWorkouts();
+  renderWorkoutPlan();
+  renderTodayWorkout();
+  renderWeekStrip();
+}
+
 function renderWorkoutPlan() {
   const root = document.getElementById('workoutPlan');
+  root.className = 'workout-plan-grid';
+
   root.innerHTML = Object.entries(state.workouts)
     .map(([day, items]) => {
       const title = dayName(Number(day));
-      const exercises = items
-        .map((item) => `<li><strong>${item.exercise}</strong> • ${item.reps} <span class="muted">(${item.muscle})</span></li>`)
-        .join('');
-      return `<details><summary>${title}</summary><ul>${exercises || '<li>Sem exercícios</li>'}</ul></details>`;
+      const exercises = items.length
+        ? items.map((item, idx) => `<li><strong>${item.exercise}</strong> • ${item.reps} <span class="muted">(${item.muscle})</span> <button class="trash-btn" data-day="${day}" data-ex-index="${idx}">🗑</button></li>`).join('')
+        : '<li>Sem exercícios</li>';
+      return `<details class="workout-day-card"><summary>${title} (${items.length})</summary><ul>${exercises}</ul></details>`;
     })
     .join('');
+
+  document.querySelectorAll('[data-ex-index]').forEach((button) => {
+    button.addEventListener('click', (event) => {
+      const day = Number(event.currentTarget.dataset.day);
+      const index = Number(event.currentTarget.dataset.exIndex);
+      removeExercise(day, index);
+    });
+  });
 }
 
 function refreshAll() {
@@ -273,6 +332,7 @@ function refreshAll() {
   renderDashboard();
   renderTodayWorkout();
   renderWorkoutPlan();
+  renderWeekStrip();
 }
 
 refreshAll();

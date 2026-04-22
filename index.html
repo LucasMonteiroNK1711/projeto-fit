@@ -52,10 +52,16 @@
         </section>
 
         <section id="treino" class="screen">
-          <div class="card">
-            <h2>Treino de hoje</h2>
+          <div class="card treino-highlight">
+            <h2>Treino do dia</h2>
             <p class="muted" id="todayWorkoutLabel">Carregando...</p>
             <div id="todayWorkoutList"></div>
+          </div>
+
+          <div class="card">
+            <h2>Semana de treino</h2>
+            <div id="weekStrip" class="week-strip"></div>
+            <p class="muted" id="weekSummary"></p>
           </div>
 
           <div class="card">
@@ -104,6 +110,7 @@
                     <th>Quadril</th>
                     <th>Braço</th>
                     <th>Perna</th>
+                    <th></th>
                   </tr>
                 </thead>
                 <tbody id="measureTableBody"></tbody>
