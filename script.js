@@ -1,194 +1,183 @@
 const STORAGE_KEYS = {
   measures: 'fit_tracker_measures',
   workouts: 'fit_tracker_workouts',
+  exerciseLibrary: 'fit_tracker_exercise_library',
 };
 
-const defaultWorkouts = {
+const DEFAULT_LIBRARY = [
+  { id: 'ex-1', muscle: 'Peito/Tríceps', exercise: 'Supino reto', reps: '4x10' },
+  { id: 'ex-2', muscle: 'Costas/Bíceps', exercise: 'Puxada frontal', reps: '4x12' },
+  { id: 'ex-3', muscle: 'Pernas', exercise: 'Agachamento livre', reps: '5x8' },
+  { id: 'ex-4', muscle: 'Ombros', exercise: 'Desenvolvimento', reps: '4x10' },
+  { id: 'ex-5', muscle: 'Core', exercise: 'Prancha', reps: '4x45s' },
+  { id: 'ex-6', muscle: 'Glúteos', exercise: 'Elevação pélvica', reps: '4x12' },
+];
+
+const DEFAULT_WORKOUTS = {
   1: [{ muscle: 'Peito/Tríceps', exercise: 'Supino reto', reps: '4x10', load: '' }],
-  2: [{ muscle: 'Costas/Bíceps', exercise: 'Remada curvada', reps: '4x12', load: '' }],
+  2: [{ muscle: 'Costas/Bíceps', exercise: 'Puxada frontal', reps: '4x12', load: '' }],
   3: [{ muscle: 'Pernas', exercise: 'Agachamento livre', reps: '5x8', load: '' }],
-  4: [{ muscle: 'Ombros/Core', exercise: 'Desenvolvimento', reps: '4x10', load: '' }],
-  5: [{ muscle: 'Posterior/Glúteos', exercise: 'Stiff', reps: '4x12', load: '' }],
-  6: [{ muscle: 'Full body/HIIT', exercise: 'Circuito funcional', reps: '30 min', load: '' }],
+  4: [{ muscle: 'Ombros', exercise: 'Desenvolvimento', reps: '4x10', load: '' }],
+  5: [{ muscle: 'Posterior', exercise: 'Stiff', reps: '4x12', load: '' }],
+  6: [{ muscle: 'HIIT', exercise: 'Circuito funcional', reps: '30 min', load: '' }],
 };
 
 const state = {
-  measures: JSON.parse(localStorage.getItem(STORAGE_KEYS.measures) || '[]'),
-  workouts: JSON.parse(localStorage.getItem(STORAGE_KEYS.workouts) || 'null') || defaultWorkouts,
+  measures: readStorage(STORAGE_KEYS.measures, []),
+  workouts: readStorage(STORAGE_KEYS.workouts, DEFAULT_WORKOUTS),
+  exerciseLibrary: readStorage(STORAGE_KEYS.exerciseLibrary, DEFAULT_LIBRARY),
 };
 
-const navButtons = document.querySelectorAll('.nav-btn');
-const screens = document.querySelectorAll('.screen');
-const screenTitle = document.getElementById('screenTitle');
-const modal = document.getElementById('measureModal');
-const measureForm = document.getElementById('measureForm');
-const tableBody = document.getElementById('measureTableBody');
-const workoutForm = document.getElementById('workoutForm');
+const dom = {
+  screens: document.querySelectorAll('.screen'),
+  navButtons: document.querySelectorAll('.nav-btn'),
+  screenTitle: document.getElementById('screenTitle'),
+  modal: document.getElementById('measureModal'),
+  measureForm: document.getElementById('measureForm'),
+  measureTableBody: document.getElementById('measureTableBody'),
+  workoutForm: document.getElementById('workoutForm'),
+  presetSelect: document.getElementById('presetSelect'),
+  saveWorkoutBtn: document.getElementById('saveWorkoutBtn'),
+  workoutPlan: document.getElementById('workoutPlan'),
+  exerciseLibrary: document.getElementById('exerciseLibrary'),
+  weekStrip: document.getElementById('weekStrip'),
+  weekSummary: document.getElementById('weekSummary'),
+  todayWorkoutLabel: document.getElementById('todayWorkoutLabel'),
+  todayWorkoutList: document.getElementById('todayWorkoutList'),
+};
 
-function saveMeasures() {
+bindEvents();
+refreshAll();
+window.addEventListener('resize', renderDashboard);
+
+function readStorage(key, fallback) {
+  try {
+    const value = JSON.parse(localStorage.getItem(key) || 'null');
+    return value ?? structuredClone(fallback);
+  } catch {
+    return structuredClone(fallback);
+  }
+}
+
+function saveState() {
   localStorage.setItem(STORAGE_KEYS.measures, JSON.stringify(state.measures));
-}
-
-function saveWorkouts() {
   localStorage.setItem(STORAGE_KEYS.workouts, JSON.stringify(state.workouts));
+  localStorage.setItem(STORAGE_KEYS.exerciseLibrary, JSON.stringify(state.exerciseLibrary));
 }
 
-document.getElementById('openMeasureModal').onclick = () => modal.showModal();
-document.getElementById('openMeasureModalHeader').onclick = () => modal.showModal();
-document.getElementById('closeModal').onclick = () => modal.close();
+function bindEvents() {
+  document.getElementById('openMeasureModal').onclick = () => dom.modal.showModal();
+  document.getElementById('openMeasureModalHeader').onclick = () => dom.modal.showModal();
+  document.getElementById('closeModal').onclick = () => dom.modal.close();
 
-navButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    navButtons.forEach((b) => b.classList.remove('active'));
-    screens.forEach((s) => s.classList.remove('active'));
-    button.classList.add('active');
-    document.getElementById(button.dataset.target).classList.add('active');
-    screenTitle.textContent = button.textContent;
+  dom.navButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      dom.navButtons.forEach((b) => b.classList.remove('active'));
+      dom.screens.forEach((s) => s.classList.remove('active'));
+      button.classList.add('active');
+      document.getElementById(button.dataset.target).classList.add('active');
+      dom.screenTitle.textContent = button.textContent;
+    });
   });
-});
 
-measureForm.addEventListener('submit', (event) => {
+  dom.measureForm.addEventListener('submit', onMeasureSubmit);
+  dom.workoutForm.addEventListener('submit', onWorkoutSubmit);
+
+  dom.presetSelect.addEventListener('change', () => {
+    const chosen = state.exerciseLibrary.find((item) => item.id === dom.presetSelect.value);
+    if (!chosen) return;
+    dom.workoutForm.muscle.value = chosen.muscle;
+    dom.workoutForm.exercise.value = chosen.exercise;
+    dom.workoutForm.reps.value = chosen.reps;
+  });
+}
+
+function onMeasureSubmit(event) {
   event.preventDefault();
-  const fd = new FormData(measureForm);
-  const entry = Object.fromEntries(fd.entries());
+  const form = new FormData(dom.measureForm);
+  const entry = Object.fromEntries(form.entries());
 
-  Object.keys(entry).forEach((key) => {
-    if (['date', 'sex', 'birthDate'].includes(key)) return;
-    entry[key] = entry[key] ? Number(entry[key]) : null;
+  ['weight', 'height', 'neck', 'waist', 'hip', 'arm', 'leg'].forEach((field) => {
+    entry[field] = entry[field] ? Number(entry[field]) : null;
   });
 
   state.measures.push(entry);
   state.measures.sort((a, b) => new Date(a.date) - new Date(b.date));
-  saveMeasures();
+  saveState();
 
-  measureForm.reset();
-  modal.close();
+  dom.measureForm.reset();
+  dom.modal.close();
   refreshAll();
-});
+}
 
-workoutForm.addEventListener('submit', (event) => {
+function onWorkoutSubmit(event) {
   event.preventDefault();
-  const fd = new FormData(workoutForm);
-  const day = Number(fd.get('day'));
-  const newItem = {
-    muscle: fd.get('muscle'),
-    exercise: fd.get('exercise'),
-    reps: fd.get('reps'),
+  const form = new FormData(dom.workoutForm);
+  const day = Number(form.get('day'));
+  const editDay = form.get('editDay');
+  const editIndex = form.get('editIndex');
+
+  const payload = {
+    muscle: String(form.get('muscle')).trim(),
+    exercise: String(form.get('exercise')).trim(),
+    reps: String(form.get('reps')).trim(),
     load: '',
   };
 
-  state.workouts[day] = [...(state.workouts[day] || []), newItem];
-  saveWorkouts();
-  workoutForm.reset();
-  renderWorkoutPlan();
-  renderTodayWorkout();
-  renderWeekStrip();
-});
-
-function calculateAge(birthDate) {
-  if (!birthDate) return '--';
-  const today = new Date();
-  const b = new Date(birthDate);
-  let years = today.getFullYear() - b.getFullYear();
-  let months = today.getMonth() - b.getMonth();
-  let days = today.getDate() - b.getDate();
-
-  if (days < 0) {
-    months -= 1;
-    const prevMonthDays = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
-    days += prevMonthDays;
+  if (editDay !== '' && editIndex !== '') {
+    const old = state.workouts[Number(editDay)][Number(editIndex)] || { load: '' };
+    state.workouts[Number(editDay)][Number(editIndex)] = { ...payload, load: old.load };
+  } else {
+    state.workouts[day] = [...(state.workouts[day] || []), payload];
   }
-  if (months < 0) {
-    years -= 1;
-    months += 12;
-  }
-  return `${years}a ${months}m ${days}d`;
+
+  upsertExerciseLibrary(payload);
+  resetWorkoutForm();
+  saveState();
+  refreshWorkoutArea();
 }
 
-function navyBodyFat(latest) {
-  const { sex, waist, neck, hip, height } = latest;
-  if (!waist || !neck || !height) return null;
-  if (sex === 'female') {
-    if (!hip) return null;
-    const value = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.221 * Math.log10(height)) - 450;
-    return Number(value.toFixed(1));
-  }
-  const value = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450;
-  return Number(value.toFixed(1));
-}
-
-function fatClass(pct) {
-  if (pct == null) return 'Sem dados';
-  if (pct < 10) return 'Atleta';
-  if (pct < 18) return 'Bom';
-  if (pct < 25) return 'Moderado';
-  return 'Alto';
-}
-
-function setGauge(value) {
-  const pct = Math.max(0, Math.min(value || 0, 45));
-  const path = document.getElementById('gaugeProgress');
-  const total = 252;
-  path.style.strokeDashoffset = String(total - (pct / 45) * total);
-}
-
-function drawLineChart(canvasId, labels, values, color) {
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width = canvas.clientWidth * window.devicePixelRatio;
-  const h = canvas.height = 180 * window.devicePixelRatio;
-  const pad = 24 * window.devicePixelRatio;
-  ctx.clearRect(0, 0, w, h);
-
-  if (values.length < 2) {
-    ctx.fillStyle = '#8a949b';
-    ctx.font = `${14 * window.devicePixelRatio}px sans-serif`;
-    ctx.fillText('Adicione pelo menos 2 medições para ver o gráfico', pad, h / 2);
+function upsertExerciseLibrary(item) {
+  const existing = state.exerciseLibrary.find((ex) => ex.exercise.toLowerCase() === item.exercise.toLowerCase());
+  if (existing) {
+    existing.muscle = item.muscle;
+    existing.reps = item.reps;
     return;
   }
 
-  const min = Math.min(...values) * 0.98;
-  const max = Math.max(...values) * 1.02;
-
-  ctx.strokeStyle = '#d7dfe3';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(pad, h - pad);
-  ctx.lineTo(w - pad, h - pad);
-  ctx.stroke();
-
-  ctx.strokeStyle = color;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-
-  values.forEach((value, index) => {
-    const x = pad + ((w - 2 * pad) * index) / (values.length - 1);
-    const y = h - pad - ((value - min) / (max - min || 1)) * (h - 2 * pad);
-    if (index === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, 4 * window.devicePixelRatio, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#6f7981';
-    ctx.font = `${10 * window.devicePixelRatio}px sans-serif`;
-    ctx.fillText(labels[index], x - 15, h - 6);
+  state.exerciseLibrary.push({
+    id: `ex-${Date.now()}`,
+    muscle: item.muscle,
+    exercise: item.exercise,
+    reps: item.reps,
   });
-  ctx.stroke();
 }
 
-function deleteMeasure(index) {
-  state.measures.splice(index, 1);
-  saveMeasures();
-  refreshAll();
+function resetWorkoutForm() {
+  dom.workoutForm.reset();
+  dom.workoutForm.editDay.value = '';
+  dom.workoutForm.editIndex.value = '';
+  dom.saveWorkoutBtn.textContent = 'Adicionar exercício';
 }
 
-function renderMeasures() {
-  tableBody.innerHTML = '';
+function refreshAll() {
+  renderMeasuresTable();
+  renderDashboard();
+  refreshWorkoutArea();
+}
+
+function refreshWorkoutArea() {
+  renderTodayWorkout();
+  renderWeekStrip();
+  renderWorkoutPlan();
+  renderPresetOptions();
+  renderExerciseLibrary();
+}
+
+function renderMeasuresTable() {
+  dom.measureTableBody.innerHTML = '';
   if (!state.measures.length) {
-    tableBody.innerHTML = '<tr><td colspan="9">Nenhuma medida registrada ainda.</td></tr>';
+    dom.measureTableBody.innerHTML = '<tr><td colspan="9">Nenhuma medida registrada ainda.</td></tr>';
     return;
   }
 
@@ -203,40 +192,147 @@ function renderMeasures() {
       <td>${m.hip ?? '-'}</td>
       <td>${m.arm ?? '-'}</td>
       <td>${m.leg ?? '-'}</td>
-      <td class="row-actions"><button class="trash-btn" data-measure-index="${index}" title="Excluir medida">🗑</button></td>`;
-    tableBody.appendChild(tr);
+      <td class="row-actions"><button class="trash-btn" data-measure-index="${index}" title="Excluir medida">🗑</button></td>
+    `;
+    dom.measureTableBody.appendChild(tr);
   });
 
-  document.querySelectorAll('[data-measure-index]').forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const idx = Number(event.currentTarget.dataset.measureIndex);
-      deleteMeasure(idx);
+  dom.measureTableBody.querySelectorAll('[data-measure-index]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.measures.splice(Number(btn.dataset.measureIndex), 1);
+      saveState();
+      refreshAll();
     });
   });
 }
 
 function renderDashboard() {
-  const latest = state.measures[state.measures.length - 1] || {};
+  const latest = state.measures.at(-1) || {};
   const fat = navyBodyFat(latest);
-  const age = calculateAge(latest.birthDate);
   const bmi = latest.weight && latest.height ? latest.weight / ((latest.height / 100) ** 2) : null;
   const lean = latest.weight && fat != null ? latest.weight * (1 - fat / 100) : null;
 
-  document.getElementById('kpiWeight').textContent = latest.weight ? `${latest.weight} kg` : '-- kg';
-  document.getElementById('kpiFat').textContent = fat != null ? `${fat}%` : '--%';
-  document.getElementById('kpiHeight').textContent = latest.height ? `${latest.height} cm` : '-- cm';
-  document.getElementById('kpiAge').textContent = age;
-  document.getElementById('kpiBmi').textContent = bmi ? bmi.toFixed(1) : '--';
-  document.getElementById('kpiLean').textContent = lean ? `${lean.toFixed(1)} kg` : '-- kg';
-  document.getElementById('bodyFatValue').textContent = fat != null ? `${fat}%` : '--%';
-  document.getElementById('bodyFatClass').textContent = fatClass(fat);
+  setText('kpiWeight', latest.weight ? `${latest.weight} kg` : '-- kg');
+  setText('kpiFat', fat != null ? `${fat}%` : '--%');
+  setText('kpiHeight', latest.height ? `${latest.height} cm` : '-- cm');
+  setText('kpiAge', calculateAge(latest.birthDate));
+  setText('kpiBmi', bmi ? bmi.toFixed(1) : '--');
+  setText('kpiLean', lean ? `${lean.toFixed(1)} kg` : '-- kg');
+  setText('bodyFatValue', fat != null ? `${fat}%` : '--%');
+  setText('bodyFatClass', classifyFat(fat));
   setGauge(fat);
 
-  const weightMeasures = state.measures.filter((m) => m.weight != null);
-  const fatMeasures = state.measures.map((m) => ({ date: m.date, fat: navyBodyFat(m) })).filter((m) => m.fat != null);
+  const weightSeries = state.measures.filter((m) => m.weight != null).map((m) => ({ x: m.date?.slice(5), y: m.weight }));
+  const fatSeries = state.measures
+    .map((m) => ({ x: m.date?.slice(5), y: navyBodyFat(m) }))
+    .filter((m) => m.y != null);
 
-  drawLineChart('weightChart', weightMeasures.map((m) => m.date?.slice(5) || ''), weightMeasures.map((m) => m.weight), '#0f9d8b');
-  drawLineChart('fatChart', fatMeasures.map((m) => m.date?.slice(5) || ''), fatMeasures.map((m) => m.fat), '#4a78d6');
+  drawLineChart('weightChart', weightSeries, '#0f9d8b');
+  drawLineChart('fatChart', fatSeries, '#4a78d6');
+}
+
+function setText(id, value) {
+  document.getElementById(id).textContent = value;
+}
+
+function calculateAge(birthDate) {
+  if (!birthDate) return '--';
+  const today = new Date();
+  const birth = new Date(birthDate);
+
+  let years = today.getFullYear() - birth.getFullYear();
+  let months = today.getMonth() - birth.getMonth();
+  let days = today.getDate() - birth.getDate();
+
+  if (days < 0) {
+    months -= 1;
+    days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+  }
+
+  if (months < 0) {
+    years -= 1;
+    months += 12;
+  }
+
+  return `${years}a ${months}m ${days}d`;
+}
+
+function navyBodyFat({ sex, waist, neck, hip, height }) {
+  if (!waist || !neck || !height) return null;
+
+  if (sex === 'female') {
+    if (!hip) return null;
+    return Number((495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.221 * Math.log10(height)) - 450).toFixed(1));
+  }
+
+  return Number((495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height)) - 450).toFixed(1));
+}
+
+function classifyFat(value) {
+  if (value == null) return 'Sem dados';
+  if (value < 10) return 'Atleta';
+  if (value < 18) return 'Bom';
+  if (value < 25) return 'Moderado';
+  return 'Alto';
+}
+
+function setGauge(value) {
+  const normalized = Math.max(0, Math.min(value || 0, 45));
+  document.getElementById('gaugeProgress').style.strokeDashoffset = String(252 - (normalized / 45) * 252);
+}
+
+function drawLineChart(canvasId, points, color) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const ratio = window.devicePixelRatio || 1;
+  const width = canvas.clientWidth * ratio;
+  const height = 180 * ratio;
+  const pad = 24 * ratio;
+
+  canvas.width = width;
+  canvas.height = height;
+  ctx.clearRect(0, 0, width, height);
+
+  if (points.length < 2) {
+    ctx.fillStyle = '#8a949b';
+    ctx.font = `${14 * ratio}px sans-serif`;
+    ctx.fillText('Adicione pelo menos 2 medições para ver o gráfico', pad, height / 2);
+    return;
+  }
+
+  const values = points.map((p) => p.y);
+  const min = Math.min(...values) * 0.98;
+  const max = Math.max(...values) * 1.02;
+
+  ctx.strokeStyle = '#d7dfe3';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pad, height - pad);
+  ctx.lineTo(width - pad, height - pad);
+  ctx.stroke();
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+
+  points.forEach((point, index) => {
+    const x = pad + ((width - 2 * pad) * index) / (points.length - 1);
+    const y = height - pad - ((point.y - min) / (max - min || 1)) * (height - 2 * pad);
+
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 4 * ratio, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#6f7981';
+    ctx.font = `${10 * ratio}px sans-serif`;
+    ctx.fillText(point.x || '', x - 15, height - 6);
+  });
+
+  ctx.stroke();
 }
 
 function dayName(day) {
@@ -244,96 +340,153 @@ function dayName(day) {
 }
 
 function renderWeekStrip() {
-  const strip = document.getElementById('weekStrip');
-  const summary = document.getElementById('weekSummary');
   const today = new Date().getDay();
-  const activeDays = [1, 2, 3, 4, 5, 6].filter((day) => (state.workouts[day] || []).length > 0).length;
+  const activeDays = [1, 2, 3, 4, 5, 6].filter((d) => (state.workouts[d] || []).length > 0).length;
 
-  strip.innerHTML = [0, 1, 2, 3, 4, 5, 6].map((day) => {
-    const cls = [day === today ? 'today' : '', day === 0 ? 'rest' : ''].join(' ');
-    const count = (state.workouts[day] || []).length;
-    const short = dayName(day).slice(0, 3);
-    return `<div class="week-day ${cls}">${short}<strong>${day === 0 ? 'REST' : count}</strong></div>`;
-  }).join('');
+  dom.weekStrip.innerHTML = [0, 1, 2, 3, 4, 5, 6]
+    .map((day) => {
+      const count = day === 0 ? 'REST' : (state.workouts[day] || []).length;
+      const classes = `week-day ${day === today ? 'today' : ''} ${day === 0 ? 'rest' : ''}`;
+      return `<div class="${classes}">${dayName(day).slice(0, 3)}<strong>${count}</strong></div>`;
+    })
+    .join('');
 
-  summary.textContent = `${activeDays} de 6 dias com treino cadastrado nesta semana.`;
+  dom.weekSummary.textContent = `${activeDays} de 6 dias com treino cadastrado nesta semana.`;
 }
 
 function renderTodayWorkout() {
   const today = new Date().getDay();
-  const label = document.getElementById('todayWorkoutLabel');
-  const box = document.getElementById('todayWorkoutList');
 
   if (today === 0) {
-    label.textContent = 'Hoje é domingo: descanso ativo 🧘';
-    box.innerHTML = '<p class="muted">Aproveite para recuperação, mobilidade e hidratação.</p>';
+    dom.todayWorkoutLabel.textContent = 'Hoje é domingo: descanso ativo 🧘';
+    dom.todayWorkoutList.innerHTML = '<p class="muted">Aproveite para recuperação, mobilidade e hidratação.</p>';
     return;
   }
 
   const list = state.workouts[today] || [];
-  label.textContent = `${dayName(today)} · ${list[0]?.muscle || 'Treino sem grupo definido'}`;
+  dom.todayWorkoutLabel.textContent = `${dayName(today)} · ${list[0]?.muscle || 'Treino sem grupo definido'}`;
 
-  box.innerHTML = list.length
-    ? list.map((item, index) => `
+  dom.todayWorkoutList.innerHTML = list.length
+    ? list
+        .map(
+          (item, index) => `
       <div class="workout-item">
         <div>
           <strong>${item.exercise}</strong>
           <div class="muted">${item.reps}</div>
         </div>
         <label>Carga (kg)
-          <input type="number" step="0.5" value="${item.load || ''}" data-day="${today}" data-index="${index}" class="load-input" />
+          <input type="number" step="0.5" value="${item.load || ''}" data-load-day="${today}" data-load-index="${index}" />
         </label>
-      </div>`).join('')
+      </div>
+    `,
+        )
+        .join('')
     : '<p class="muted">Nenhum exercício cadastrado para hoje.</p>';
 
-  document.querySelectorAll('.load-input').forEach((input) => {
-    input.addEventListener('change', (e) => {
-      const day = Number(e.target.dataset.day);
-      const index = Number(e.target.dataset.index);
-      state.workouts[day][index].load = e.target.value;
-      saveWorkouts();
+  dom.todayWorkoutList.querySelectorAll('[data-load-day]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const day = Number(input.dataset.loadDay);
+      const index = Number(input.dataset.loadIndex);
+      state.workouts[day][index].load = input.value;
+      saveState();
     });
   });
-}
-
-function removeExercise(day, index) {
-  state.workouts[day].splice(index, 1);
-  saveWorkouts();
-  renderWorkoutPlan();
-  renderTodayWorkout();
-  renderWeekStrip();
 }
 
 function renderWorkoutPlan() {
-  const root = document.getElementById('workoutPlan');
-  root.className = 'workout-plan-grid';
-
-  root.innerHTML = Object.entries(state.workouts)
+  dom.workoutPlan.className = 'workout-plan-grid';
+  dom.workoutPlan.innerHTML = Object.entries(state.workouts)
     .map(([day, items]) => {
-      const title = dayName(Number(day));
-      const exercises = items.length
-        ? items.map((item, idx) => `<li><strong>${item.exercise}</strong> • ${item.reps} <span class="muted">(${item.muscle})</span> <button class="trash-btn" data-day="${day}" data-ex-index="${idx}">🗑</button></li>`).join('')
+      const list = items.length
+        ? items
+            .map(
+              (item, index) => `
+                <li>
+                  <strong>${item.exercise}</strong> • ${item.reps}
+                  <span class="muted">(${item.muscle})</span>
+                  <span class="button-group">
+                    <button class="action-btn" data-edit-day="${day}" data-edit-index="${index}">Editar</button>
+                    <button class="trash-btn" data-remove-day="${day}" data-remove-index="${index}">🗑</button>
+                  </span>
+                </li>
+              `,
+            )
+            .join('')
         : '<li>Sem exercícios</li>';
-      return `<details class="workout-day-card"><summary>${title} (${items.length})</summary><ul>${exercises}</ul></details>`;
+
+      return `<details class="workout-day-card"><summary>${dayName(Number(day))} (${items.length})</summary><ul>${list}</ul></details>`;
     })
     .join('');
 
-  document.querySelectorAll('[data-ex-index]').forEach((button) => {
-    button.addEventListener('click', (event) => {
-      const day = Number(event.currentTarget.dataset.day);
-      const index = Number(event.currentTarget.dataset.exIndex);
-      removeExercise(day, index);
+  dom.workoutPlan.querySelectorAll('[data-remove-day]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const day = Number(btn.dataset.removeDay);
+      const index = Number(btn.dataset.removeIndex);
+      state.workouts[day].splice(index, 1);
+      saveState();
+      refreshWorkoutArea();
+    });
+  });
+
+  dom.workoutPlan.querySelectorAll('[data-edit-day]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const day = Number(btn.dataset.editDay);
+      const index = Number(btn.dataset.editIndex);
+      const item = state.workouts[day][index];
+      dom.workoutForm.day.value = String(day);
+      dom.workoutForm.muscle.value = item.muscle;
+      dom.workoutForm.exercise.value = item.exercise;
+      dom.workoutForm.reps.value = item.reps;
+      dom.workoutForm.editDay.value = String(day);
+      dom.workoutForm.editIndex.value = String(index);
+      dom.saveWorkoutBtn.textContent = 'Salvar edição';
     });
   });
 }
 
-function refreshAll() {
-  renderMeasures();
-  renderDashboard();
-  renderTodayWorkout();
-  renderWorkoutPlan();
-  renderWeekStrip();
+function renderPresetOptions() {
+  dom.presetSelect.innerHTML = '<option value="">Selecionar exercício já cadastrado</option>';
+  dom.presetSelect.innerHTML += state.exerciseLibrary
+    .map((ex) => `<option value="${ex.id}">${ex.exercise} · ${ex.muscle} · ${ex.reps}</option>`)
+    .join('');
 }
 
-refreshAll();
-window.addEventListener('resize', renderDashboard);
+function renderExerciseLibrary() {
+  dom.exerciseLibrary.className = 'library-list';
+  dom.exerciseLibrary.innerHTML = state.exerciseLibrary
+    .map(
+      (item) => `
+        <div class="library-item">
+          <div>
+            <strong>${item.exercise}</strong>
+            <span class="muted">${item.muscle} · ${item.reps}</span>
+          </div>
+          <div class="button-group">
+            <button class="action-btn" data-lib-use="${item.id}">Usar/Editar</button>
+            <button class="trash-btn" data-lib-delete="${item.id}">🗑</button>
+          </div>
+        </div>
+      `,
+    )
+    .join('');
+
+  dom.exerciseLibrary.querySelectorAll('[data-lib-use]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = state.exerciseLibrary.find((ex) => ex.id === btn.dataset.libUse);
+      if (!item) return;
+      dom.workoutForm.muscle.value = item.muscle;
+      dom.workoutForm.exercise.value = item.exercise;
+      dom.workoutForm.reps.value = item.reps;
+    });
+  });
+
+  dom.exerciseLibrary.querySelectorAll('[data-lib-delete]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      state.exerciseLibrary = state.exerciseLibrary.filter((ex) => ex.id !== btn.dataset.libDelete);
+      saveState();
+      renderPresetOptions();
+      renderExerciseLibrary();
+    });
+  });
+}

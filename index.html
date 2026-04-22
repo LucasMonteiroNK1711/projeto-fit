@@ -67,6 +67,13 @@
           <div class="card">
             <h2>Gerenciar treinos</h2>
             <form id="workoutForm" class="form-grid">
+              <input type="hidden" name="editDay" />
+              <input type="hidden" name="editIndex" />
+              <label>Pré-definido
+                <select name="preset" id="presetSelect">
+                  <option value="">Selecionar exercício já cadastrado</option>
+                </select>
+              </label>
               <label>Dia
                 <select name="day" required>
                   <option value="1">Segunda</option>
@@ -86,9 +93,15 @@
               <label>Repetições
                 <input name="reps" placeholder="4x12" required />
               </label>
-              <button type="submit" class="btn">Adicionar exercício</button>
+              <button type="submit" class="btn" id="saveWorkoutBtn">Adicionar exercício</button>
             </form>
             <div id="workoutPlan"></div>
+          </div>
+
+          <div class="card">
+            <h2>Biblioteca de exercícios</h2>
+            <p class="muted">Escolha os pré-definidos para preencher rápido, ou edite e crie novos.</p>
+            <div id="exerciseLibrary"></div>
           </div>
         </section>
 
