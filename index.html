@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tracker Academia</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="brand">fit tracker premium</p>
+          <h1 id="screenTitle">Dashboard</h1>
+        </div>
+        <button id="openMeasureModalHeader" class="icon-btn" title="Atualizar medidas">+</button>
+      </header>
+
+      <main>
+        <section id="dashboard" class="screen active">
+          <div class="card gauge-card">
+            <h2>Composição corporal (Método Navy)</h2>
+            <div class="gauge-wrap">
+              <svg viewBox="0 0 200 120" class="gauge" aria-label="Percentual de gordura">
+                <path d="M20 100 A80 80 0 0 1 180 100" class="gauge-bg" />
+                <path id="gaugeProgress" d="M20 100 A80 80 0 0 1 180 100" class="gauge-progress" />
+              </svg>
+              <div class="gauge-value">
+                <strong id="bodyFatValue">--%</strong>
+                <span id="bodyFatClass">Sem dados</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <article class="card kpi"><span>Peso Atual</span><strong id="kpiWeight">-- kg</strong></article>
+            <article class="card kpi"><span>% Gordura</span><strong id="kpiFat">--%</strong></article>
+            <article class="card kpi"><span>Altura</span><strong id="kpiHeight">-- cm</strong></article>
+            <article class="card kpi"><span>Idade</span><strong id="kpiAge">--</strong></article>
+            <article class="card kpi"><span>IMC</span><strong id="kpiBmi">--</strong></article>
+            <article class="card kpi"><span>Massa Magra</span><strong id="kpiLean">-- kg</strong></article>
+          </div>
+
+          <div class="card">
+            <h2>Evolução de peso</h2>
+            <canvas id="weightChart" height="180"></canvas>
+          </div>
+          <div class="card">
+            <h2>Evolução % de gordura</h2>
+            <canvas id="fatChart" height="180"></canvas>
+          </div>
+        </section>
+
+        <section id="treino" class="screen">
+          <div class="card treino-highlight">
+            <h2>Treino do dia</h2>
+            <p class="muted" id="todayWorkoutLabel">Carregando...</p>
+            <div id="todayWorkoutList"></div>
+          </div>
+
+          <div class="card">
+            <h2>Semana de treino</h2>
+            <div id="weekStrip" class="week-strip"></div>
+            <p class="muted" id="weekSummary"></p>
+          </div>
+
+          <div class="card">
+            <h2>Gerenciar treinos</h2>
+            <form id="workoutForm" class="form-grid">
+              <label>Dia
+                <select name="day" required>
+                  <option value="1">Segunda</option>
+                  <option value="2">Terça</option>
+                  <option value="3">Quarta</option>
+                  <option value="4">Quinta</option>
+                  <option value="5">Sexta</option>
+                  <option value="6">Sábado</option>
+                </select>
+              </label>
+              <label>Músculo
+                <input name="muscle" placeholder="Peito" required />
+              </label>
+              <label>Exercício
+                <input name="exercise" placeholder="Supino reto" required />
+              </label>
+              <label>Repetições
+                <input name="reps" placeholder="4x12" required />
+              </label>
+              <button type="submit" class="btn">Adicionar exercício</button>
+            </form>
+            <div id="workoutPlan"></div>
+          </div>
+        </section>
+
+        <section id="medidas" class="screen">
+          <div class="card">
+            <div class="section-title">
+              <h2>Histórico de medidas</h2>
+              <button id="openMeasureModal" class="btn">Atualizar medidas</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Peso</th>
+                    <th>Altura</th>
+                    <th>Pescoço</th>
+                    <th>Cintura</th>
+                    <th>Quadril</th>
+                    <th>Braço</th>
+                    <th>Perna</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="measureTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button data-target="dashboard" class="nav-btn active">Dashboard</button>
+        <button data-target="treino" class="nav-btn">Treino</button>
+        <button data-target="medidas" class="nav-btn">Medidas</button>
+      </nav>
+    </div>
+
+    <footer>Lucas Monteiro© 2026</footer>
+
+    <dialog id="measureModal">
+      <form id="measureForm" method="dialog" class="modal-form">
+        <h3>Nova medida</h3>
+        <label>Data
+          <input type="date" name="date" required />
+        </label>
+        <label>Sexo
+          <select name="sex">
+            <option value="male">Masculino</option>
+            <option value="female">Feminino</option>
+          </select>
+        </label>
+        <label>Data de nascimento
+          <input type="date" name="birthDate" />
+        </label>
+        <label>Peso (kg)<input type="number" step="0.1" name="weight" /></label>
+        <label>Altura (cm)<input type="number" step="0.1" name="height" /></label>
+        <label>Pescoço (cm)<input type="number" step="0.1" name="neck" /></label>
+        <label>Cintura (cm)<input type="number" step="0.1" name="waist" /></label>
+        <label>Quadril (cm)<input type="number" step="0.1" name="hip" /></label>
+        <label>Braço (cm)<input type="number" step="0.1" name="arm" /></label>
+        <label>Perna (cm)<input type="number" step="0.1" name="leg" /></label>
+        <div class="actions">
+          <button type="button" class="btn btn-secondary" id="closeModal">Cancelar</button>
+          <button type="submit" class="btn">Salvar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="script.js"></script>
+  </body>
+</html>
