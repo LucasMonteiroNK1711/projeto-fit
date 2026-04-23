@@ -6,7 +6,6 @@
   --primary: #0f9d8b;
   --primary-soft: #bde8e2;
   --danger: #d94a63;
-  --danger: #d94a63;
   --radius: 18px;
 }
 
@@ -16,6 +15,7 @@ body {
   font-family: Inter, system-ui, -apple-system, sans-serif;
   background: linear-gradient(180deg, #f6f7f8 0%, var(--bg) 100%);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 .app-shell { max-width: 1080px; margin: 0 auto; min-height: calc(100vh - 70px); padding: 16px 16px 100px; }
@@ -28,10 +28,10 @@ body {
 .btn-secondary { background: #a7b0b7; }
 
 .screen { display: none; }
-.screen.active { display: grid; gap: 12px; }
-.card { background: var(--card); border-radius: var(--radius); padding: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-.card { background: var(--card); border-radius: var(--radius); padding: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+.screen.active { display: grid; gap: 12px; min-width: 0; }
+.card { background: var(--card); border-radius: var(--radius); padding: 14px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
 .card h2 { margin: 0 0 10px; font-size: 1rem; }
+canvas { width: 100%; display: block; max-width: 100%; }
 
 .gauge-wrap { display: grid; place-items: center; position: relative; }
 .gauge { width: 100%; max-width: 320px; }
