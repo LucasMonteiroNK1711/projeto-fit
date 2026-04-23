@@ -118,8 +118,6 @@ th, td { padding: 9px 6px; border-bottom: 1px solid #edf0f2; text-align: left; }
 
 
 dialog { border: none; border-radius: 16px; width: min(680px, 95%); }
-#workoutManagerModal { width: min(980px, 96%); }
-.modal-manager { display: grid; gap: 12px; max-height: 80vh; overflow: auto; }
 dialog::backdrop { background: rgba(0,0,0,.35); }
 .modal-form { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 10px; }
 .modal-form h3 { grid-column: 1/-1; margin: 0; }
