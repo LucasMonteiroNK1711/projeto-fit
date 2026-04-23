@@ -2,6 +2,18 @@ const STORAGE_KEYS = {
   measures: 'fit_tracker_measures',
   workouts: 'fit_tracker_workouts',
   exerciseLibrary: 'fit_tracker_exercise_library',
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+  theme: 'fit_tracker_theme',
+>>>>>>> theirs
+=======
+  theme: 'fit_tracker_theme',
+>>>>>>> theirs
+=======
+  theme: 'fit_tracker_theme',
+>>>>>>> theirs
 };
 
 const DEFAULT_LIBRARY = [
@@ -45,9 +57,29 @@ const dom = {
   weekSummary: document.getElementById('weekSummary'),
   todayWorkoutLabel: document.getElementById('todayWorkoutLabel'),
   todayWorkoutList: document.getElementById('todayWorkoutList'),
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 };
 
 bindEvents();
+=======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+  themeToggle: document.getElementById('themeToggle'),
+};
+
+bindEvents();
+initTheme();
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 refreshAll();
 window.addEventListener('resize', renderDashboard);
 
@@ -72,6 +104,18 @@ function bindEvents() {
   document.getElementById('closeModal').onclick = () => dom.modal.close();
   document.getElementById('openWorkoutManager').onclick = () => dom.workoutManagerModal.showModal();
   document.getElementById('closeWorkoutManager').onclick = () => dom.workoutManagerModal.close();
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+  dom.themeToggle.onclick = toggleTheme;
+>>>>>>> theirs
+=======
+  dom.themeToggle.onclick = toggleTheme;
+>>>>>>> theirs
+=======
+  dom.themeToggle.onclick = toggleTheme;
+>>>>>>> theirs
 
   dom.navButtons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -95,6 +139,40 @@ function bindEvents() {
   });
 }
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+function initTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
+  const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  applyTheme(initialTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
+  const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(nextTheme);
+  localStorage.setItem(STORAGE_KEYS.theme, nextTheme);
+  renderDashboard();
+}
+
+function applyTheme(theme) {
+  document.body.classList.toggle('theme-dark', theme === 'dark');
+  dom.themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 function onMeasureSubmit(event) {
   event.preventDefault();
   const form = new FormData(dom.measureForm);
@@ -287,6 +365,21 @@ function setGauge(value) {
 function drawLineChart(canvasId, points, color) {
   const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext('2d');
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+  const axisColor = getCssVar('--border');
+  const labelColor = getCssVar('--muted');
+>>>>>>> theirs
+=======
+  const axisColor = getCssVar('--border');
+  const labelColor = getCssVar('--muted');
+>>>>>>> theirs
+=======
+  const axisColor = getCssVar('--border');
+  const labelColor = getCssVar('--muted');
+>>>>>>> theirs
   const ratio = window.devicePixelRatio || 1;
   const width = canvas.clientWidth * ratio;
   const height = 180 * ratio;
@@ -297,7 +390,19 @@ function drawLineChart(canvasId, points, color) {
   ctx.clearRect(0, 0, width, height);
 
   if (points.length < 2) {
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
     ctx.fillStyle = '#8a949b';
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
     ctx.font = `${14 * ratio}px sans-serif`;
     ctx.fillText('Adicione pelo menos 2 medições para ver o gráfico', pad, height / 2);
     return;
@@ -307,7 +412,19 @@ function drawLineChart(canvasId, points, color) {
   const min = Math.min(...values) * 0.98;
   const max = Math.max(...values) * 1.02;
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   ctx.strokeStyle = '#d7dfe3';
+=======
+  ctx.strokeStyle = axisColor;
+>>>>>>> theirs
+=======
+  ctx.strokeStyle = axisColor;
+>>>>>>> theirs
+=======
+  ctx.strokeStyle = axisColor;
+>>>>>>> theirs
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(pad, height - pad);
@@ -330,7 +447,19 @@ function drawLineChart(canvasId, points, color) {
     ctx.arc(x, y, 4 * ratio, 0, Math.PI * 2);
     ctx.fill();
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
     ctx.fillStyle = '#6f7981';
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
+=======
+    ctx.fillStyle = labelColor;
+>>>>>>> theirs
     ctx.font = `${10 * ratio}px sans-serif`;
     ctx.fillText(point.x || '', x - 15, height - 6);
   });
@@ -338,6 +467,25 @@ function drawLineChart(canvasId, points, color) {
   ctx.stroke();
 }
 
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+function getCssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 function dayName(day) {
   return ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'][day];
 }

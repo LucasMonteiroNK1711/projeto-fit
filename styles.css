@@ -1,31 +1,118 @@
 :root {
   --bg: #eff1f2;
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+  --bg-gradient-start: #f6f7f8;
+>>>>>>> theirs
+=======
+  --bg-gradient-start: #f6f7f8;
+>>>>>>> theirs
+=======
+  --bg-gradient-start: #f6f7f8;
+>>>>>>> theirs
   --card: #ffffff;
   --text: #1b1f22;
   --muted: #6f7981;
   --primary: #0f9d8b;
   --primary-soft: #bde8e2;
   --danger: #d94a63;
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   --radius: 18px;
 }
 
+=======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+  --border: #d8dde0;
+  --line: #edf0f2;
+  --nav-surface: rgba(255,255,255,0.92);
+  --shadow: rgba(0,0,0,0.12);
+  --gauge-bg: #dce1e4;
+  --radius: 18px;
+}
+
+body.theme-dark {
+  --bg: #10161d;
+  --bg-gradient-start: #0b1017;
+  --card: #17202b;
+  --text: #e9eef3;
+  --muted: #9aabba;
+  --primary: #28b7a3;
+  --primary-soft: #1d3b40;
+  --danger: #ff6b86;
+  --border: #2b3744;
+  --line: #24303d;
+  --nav-surface: rgba(18, 25, 34, 0.92);
+  --shadow: rgba(0,0,0,0.4);
+  --gauge-bg: #2a3642;
+}
+
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 * { box-sizing: border-box; }
 body {
   margin: 0;
   font-family: Inter, system-ui, -apple-system, sans-serif;
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   background: linear-gradient(180deg, #f6f7f8 0%, var(--bg) 100%);
+=======
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+>>>>>>> theirs
+=======
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+>>>>>>> theirs
+=======
+  background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg) 100%);
+>>>>>>> theirs
   color: var(--text);
   overflow-x: hidden;
 }
 
 .app-shell { max-width: 1080px; margin: 0 auto; min-height: calc(100vh - 70px); padding: 16px 16px 100px; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+.topbar-actions { display: flex; gap: 8px; }
+>>>>>>> theirs
+=======
+.topbar-actions { display: flex; gap: 8px; }
+>>>>>>> theirs
+=======
+.topbar-actions { display: flex; gap: 8px; }
+>>>>>>> theirs
 .brand { margin: 0; color: var(--muted); font-size: 0.8rem; text-transform: lowercase; }
 .topbar h1 { margin: 4px 0 0; font-size: 1.4rem; }
 
 .icon-btn, .btn { border: 0; border-radius: 12px; background: var(--primary); color: white; padding: 10px 14px; font-weight: 600; cursor: pointer; }
 .icon-btn { width: 40px; height: 40px; font-size: 1.3rem; padding: 0; }
 .btn-secondary { background: #a7b0b7; }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+.ghost-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+>>>>>>> theirs
+=======
+.ghost-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+>>>>>>> theirs
+=======
+.ghost-btn { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+>>>>>>> theirs
 
 .screen { display: none; }
 .screen.active { display: grid; gap: 12px; min-width: 0; }
@@ -35,7 +122,19 @@ canvas { width: 100%; display: block; max-width: 100%; }
 
 .gauge-wrap { display: grid; place-items: center; position: relative; }
 .gauge { width: 100%; max-width: 320px; }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 .gauge-bg { stroke: #dce1e4; stroke-width: 16; fill: none; stroke-linecap: round; }
+=======
+.gauge-bg { stroke: var(--gauge-bg); stroke-width: 16; fill: none; stroke-linecap: round; }
+>>>>>>> theirs
+=======
+.gauge-bg { stroke: var(--gauge-bg); stroke-width: 16; fill: none; stroke-linecap: round; }
+>>>>>>> theirs
+=======
+.gauge-bg { stroke: var(--gauge-bg); stroke-width: 16; fill: none; stroke-linecap: round; }
+>>>>>>> theirs
 .gauge-progress { stroke: var(--primary); stroke-width: 16; fill: none; stroke-linecap: round; stroke-dasharray: 252; stroke-dashoffset: 252; transition: all .4s; }
 .gauge-value { position: absolute; bottom: 8px; text-align: center; display: grid; }
 .gauge-value strong { font-size: 2rem; }
@@ -47,7 +146,19 @@ canvas { width: 100%; display: block; max-width: 100%; }
 
 .week-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .week-day {
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   border: 1px solid #d7dfe3;
+=======
+  border: 1px solid var(--border);
+>>>>>>> theirs
+=======
+  border: 1px solid var(--border);
+>>>>>>> theirs
+=======
+  border: 1px solid var(--border);
+>>>>>>> theirs
   border-radius: 12px;
   text-align: center;
   padding: 8px 4px;
@@ -62,6 +173,9 @@ canvas { width: 100%; display: block; max-width: 100%; }
 .bottom-nav {
   position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
   width: min(96%, 540px); display: grid; grid-template-columns: repeat(3,1fr); gap: 8px;
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); border-radius: 16px; padding: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,.12);
 }
@@ -73,12 +187,47 @@ label { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
 input, select { border: 1px solid #d8dde0; border-radius: 10px; padding: 10px; font: inherit; }
 
 .workout-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; border-bottom: 1px solid #edf0f2; padding: 10px 0; }
+=======
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+  background: var(--nav-surface); backdrop-filter: blur(10px); border-radius: 16px; padding: 8px;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+.nav-btn { border: none; border-radius: 10px; background: transparent; padding: 11px 10px; font-weight: 700; color: var(--muted); }
+.nav-btn.active { background: var(--primary-soft); color: var(--primary); }
+
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+label { font-size: .85rem; color: var(--muted); display: grid; gap: 4px; }
+input, select { border: 1px solid var(--border); border-radius: 10px; padding: 10px; font: inherit; background: var(--card); color: var(--text); }
+
+.workout-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; border-bottom: 1px solid var(--line); padding: 10px 0; }
+<<<<<<< ours
+<<<<<<< ours
+>>>>>>> theirs
+=======
+>>>>>>> theirs
+=======
+>>>>>>> theirs
 .workout-item:last-child { border-bottom: 0; }
 .muted { color: var(--muted); }
 
 .table-wrap { overflow: auto; }
 table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 th, td { padding: 9px 6px; border-bottom: 1px solid #edf0f2; text-align: left; }
+=======
+th, td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+>>>>>>> theirs
+=======
+th, td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+>>>>>>> theirs
+=======
+th, td { padding: 9px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+>>>>>>> theirs
 .section-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .row-actions { text-align: right; }
 .trash-btn {
@@ -101,7 +250,19 @@ th, td { padding: 9px 6px; border-bottom: 1px solid #edf0f2; text-align: left; }
 
 .library-list { display: grid; gap: 8px; }
 .library-item {
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
   border: 1px solid #e6ecef;
+=======
+  border: 1px solid var(--line);
+>>>>>>> theirs
+=======
+  border: 1px solid var(--line);
+>>>>>>> theirs
+=======
+  border: 1px solid var(--line);
+>>>>>>> theirs
   border-radius: 12px;
   padding: 10px;
   display: flex;
@@ -113,7 +274,19 @@ th, td { padding: 9px 6px; border-bottom: 1px solid #edf0f2; text-align: left; }
 .button-group { display: flex; gap: 6px; }
 
 .workout-plan-grid { display: grid; gap: 8px; margin-top: 10px; }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
 .workout-day-card { border: 1px solid #e6ecef; border-radius: 12px; padding: 10px; }
+=======
+.workout-day-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+>>>>>>> theirs
+=======
+.workout-day-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+>>>>>>> theirs
+=======
+.workout-day-card { border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+>>>>>>> theirs
 .workout-day-card summary { cursor: pointer; font-weight: 600; }
 
 
@@ -121,6 +294,18 @@ dialog { border: none; border-radius: 16px; width: min(680px, 95%); }
 #workoutManagerModal { width: min(980px, 96%); }
 .modal-manager { display: grid; gap: 12px; max-height: 80vh; overflow: auto; }
 dialog::backdrop { background: rgba(0,0,0,.35); }
+<<<<<<< ours
+<<<<<<< ours
+<<<<<<< ours
+=======
+.modal-manager, .modal-form { color: var(--text); }
+>>>>>>> theirs
+=======
+.modal-manager, .modal-form { color: var(--text); }
+>>>>>>> theirs
+=======
+.modal-manager, .modal-form { color: var(--text); }
+>>>>>>> theirs
 .modal-form { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 10px; }
 .modal-form h3 { grid-column: 1/-1; margin: 0; }
 .actions { grid-column: 1/-1; display: flex; justify-content: flex-end; gap: 8px; }
