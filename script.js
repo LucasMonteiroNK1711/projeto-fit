@@ -38,6 +38,7 @@ const dom = {
   workoutForm: document.getElementById('workoutForm'),
   presetSelect: document.getElementById('presetSelect'),
   saveWorkoutBtn: document.getElementById('saveWorkoutBtn'),
+  workoutManagerModal: document.getElementById('workoutManagerModal'),
   workoutPlan: document.getElementById('workoutPlan'),
   exerciseLibrary: document.getElementById('exerciseLibrary'),
   weekStrip: document.getElementById('weekStrip'),
@@ -69,6 +70,8 @@ function bindEvents() {
   document.getElementById('openMeasureModal').onclick = () => dom.modal.showModal();
   document.getElementById('openMeasureModalHeader').onclick = () => dom.modal.showModal();
   document.getElementById('closeModal').onclick = () => dom.modal.close();
+  document.getElementById('openWorkoutManager').onclick = () => dom.workoutManagerModal.showModal();
+  document.getElementById('closeWorkoutManager').onclick = () => dom.workoutManagerModal.close();
 
   dom.navButtons.forEach((button) => {
     button.addEventListener('click', () => {
